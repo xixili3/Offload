@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<!--
+ *  Copyright (c) 2015 The WebRTC project authors. All Rights Reserved.
+ *
+ *  Use of this source code is governed by a BSD-style license
+ *  that can be found in the LICENSE file in the root of the source
+ *  tree.
+-->
+<html>
+
+<head>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+  <meta charset="utf-8" />
+  <meta name="description" content="WebRTC code samples" />
+  <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1, maximum-scale=1" />
+  <meta itemprop="description" content="Client-side WebRTC code samples" />
+  <meta itemprop="name" content="WebRTC code samples" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta id="theme-color" name="theme-color" content="#ffffff" />
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+    crossorigin="anonymous"></script>
+  <script src="/offload.js"></script>
+
+  <base target="_blank" />
+
+  <title>Offload</title>
+
+  <style>
+    body,
+    html {
+      height: 100%;
+    }
+
+    div#buttons {
+      margin: 0 0 1em 0;
+    }
+
+    div#container {
+      max-width: 100%;
+    }
+
+    #errormessage {
+      display: none;
+      font-size: 100%;
+    }
+
+    #videoblock {
+      display: block;
+    }
+
+    p#dimensions {
+      height: 1em;
+      margin: 0 0 1.5em 0;
+    }
+
+    video {
+      background: none;
+      height: auto;
+      width: auto;
+    }
+  </style>
+</head>
+
+<body style="background-color: white">
+  <nav class="navbar navbar-dark bg-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#" style="font-weight: bold">
+        OFFLOAD
+      </a>
+    </div>
+  </nav>
+  <div class="container-fluid" style="margin-top: 10px">
+    <div style="display: none">
+      <div class="select">
+        <label for="facingMode">facingMode: </label>
+        <select id="facingMode">
+          <option value="user" selected>user</option>
+          <option value="environment">environment</option>
+        </select>
+      </div>
+
+      <div class="select">
+        <label for="codec">codec: </label>
+        <select id="codec">
+          <option value="vp8" selected>vp8</option>
+          <option value="vp9" selected>vp9</option>
+          <option value="h264" selected>h264</option>
+        </select>
+      </div>
+
+      <div class="select">
+        <label for="frameRate">fps: </label>
+        <select id="frameRate">
+          <option value="15">15</option>
+          <option value="30" selected>30</option>
+          <option value="60">60</option>
+        </select>
+      </div>
+
+      <div class="select">
+        <label for="audioSource">Audio input: </label>
+        <select id="audioSource"></select>
+      </div>
+
+      <div class="select">
+        <label for="audioOutput">Audio output: </label>
+        <select id="audioOutput"></select>
+      </div>
+
+      <div class="select">
+        <label for="videoSource">Video source: </label>
+        <select id="videoSource"></select>
+      </div>
+
+      <button id="zoomUp">+</button>
+      <button id="zoomDown">-</button>
+    </div>
+
+    <div class="row">
+      <div class="col-8">
+        <p id="dimensions"></p>
+        <div id="videoblock">
+          <div style="display: none">
+            <h1>
+              <span id="postTestMin">00</span>
+              <span>:</span>
+              <span id="postTestSec">00</span>
+              <span>.</span>
+              <span id="postTestMilisec">000</span>
+            </h1>
+          </div>
+          <video id="gum-res-local" playsinline autoplay></video>
+          <div id="width" style="display: none">
+            <label>Width <span></span>px:</label>
+            <input type="range" min="0" max="7680" value="0" />
+          </div>
+          <input style="display: none" id="sizelock" type="checkbox" Checked />
+          <!-- Lock video size<br /> -->
+          <input style="display: none" id="aspectlock" type="checkbox" />
+          <!-- Lock aspect ratio<br /> -->
+          <div style="display: none">
+            <div style="width:50%">
+              <pre id="constraintsValue"></pre>
+            </div>
+            <button id="getConstraints">Get Constraints</button>
+          </div>
+        </div>
+        <div id='webrtcstats' style="float:left; width:50%; display: none">
+        </div>
+        <pre id="errormessage"></pre>
+      </div>
+      <div class="col-4">
+        <div class="card border-dark" id="aiZoom">
+          <h5 class="card-header">AI Zoom</h5>
+          <div class="card-body">
+            <div class="input-group mb-3">
+              <label class="input-group-text" for="target">Target</label>
+              <select class="form-select" id="target">
+                <option value="face" selected>Face</option>
+                <option value="body">Hand</option>
+              </select>
+            </div>
+            <div class="input-group mb-3">
+              <label class="input-group-text" for="number">Number</label>
+              <select class="form-select" id="number">
+                <option value="single" selected>Single</option>
+                <option value="group">Group</option>
+              </select>
+            </div>
+            <div class="input-group mb-3">
+              <label class="input-group-text" for="focus">Focus</label>
+              <select class="form-select" id="focus">
+                <option value="nearest" selected>Nearest</option>
+                <option value="median">Median</option>
+                <option value="farthest">Farthest</option>
+              </select>
+            </div>
+            <div class="input-group mb-3" style="display: none">
+              <label class="input-group-text" for="animation">Animation</label>
+              <select class="form-select" id="animation">
+                <option value="linear" selected>Linear</option>
+                <option value="none">None</option>
+              </select>
+            </div>
+            <div style="text-align: right">
+              <button id="aiZoomOn" class="btn btn-outline-dark">ON</button>
+              <button id="aiZoomOff" class="btn btn-outline-danger">OFF</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card border-dark" id="aiEffect" style="margin-top: 10px">
+          <h5 class="card-header">Other Effects</h5>
+          <div class="card-body">
+            <div class="input-group mb-3">
+              <label class="form-control" for="santa">Santa</label>
+              <button id="aiSantaOn" class="btn btn-outline-dark" type="button">ON</button>
+            </div>
+            <div class="input-group mb-3">
+              <label class="form-control" for="emoji">Sunglass</label>
+              <button id="aiEmojiOn" class="btn btn-outline-dark" type="button">ON</button>
+            </div>
+            <div class="input-group mb-3">
+              <label class="form-control" for="soo">Soo</label>
+              <button id="aiSooOn" class="btn btn-outline-dark" type="button">ON</button>
+            </div>
+            <div class="input-group mb-3">
+              <label class="form-control" for="mancity">Mancity</label>
+              <button id="aiMancityOn" class="btn btn-outline-dark" type="button">ON</button>
+            </div>
+            <div class="input-group mb-3">
+              <label class="form-control" for="mancity">Madrid</label>
+              <button id="aiMadridOn" class="btn btn-outline-dark" type="button">ON</button>
+            </div>
+            <div class="input-group mb-3">
+              <label class="form-control" for="mancity">Chelsea</label>
+              <button id="aiChelseaOn" class="btn btn-outline-dark" type="button">ON</button>
+            </div>
+            <div style="text-align: right">
+              <button id="aiEffectOff" class="btn btn-outline-danger">OFF</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="select" style="display: none">
+          <input id="autoConnect" type="checkbox">
+          Auto Connect
+        </div>
+
+        <div id="buttons" style="margin-top:15px; text-align: right">
+          <div style="display: none">
+            <button id="qvga">QVGA</button>
+            <button id="vga">VGA</button>
+            <button id="full-hd">Full HD</button>
+            <button id="fourK">4K</button>
+            <button id="eightK">8K</button>
+          </div>
+          <button class="btn btn-dark" id="hd" type="button" style="font-weight: bold">CONNECT</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="js/main.js" async></script>
+</body>
+
+</html>

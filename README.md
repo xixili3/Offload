@@ -60,4 +60,15 @@ The offload worker will provide camera feature to client app running on device w
 * URL : http://\<OffloadServer Address\>:9559/getusermedia/
 * OffloadServer requires https protocol to access camera.
 
+##### Android Build Settings
+```
+cd offload-worker/android/gradle.properties
+```
+* #jdk path
+* org.gradle.java.home = (jdk path)
 
+```
+cd offload-worker/android
+```
+* create file 'local.properties'
+* add 'sdk.dir = (android sdk path)'
